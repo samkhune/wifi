@@ -1,0 +1,16 @@
+CREATE USER 'mobileapi'@'%' IDENTIFIED BY '%ui6aV@1w1TIF#';
+GRANT ALL PRIVILEGES ON radius.* TO 'mobileapi'@'%' WITH GRANT OPTION;
+
+CREATE USER 'smartap'@'%' IDENTIFIED BY '78704ann';
+GRANT ALL PRIVILEGES ON smartap_v3.* TO 'smartap'@'%' WITH GRANT OPTION;
+
+CREATE USER 'wifilan'@'localhost' IDENTIFIED BY '78704ann';
+GRANT ALL PRIVILEGES ON *.* TO 'wifilan'@'localhost' WITH GRANT OPTION;
+
+
+CREATE USER 'django'@'%' IDENTIFIED BY 'sWjozp9vyG';
+GRANT ALL PRIVILEGES ON radius.* TO 'django'@'%' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON wifilan.* TO 'django'@'%' WITH GRANT OPTION;
+
+
+

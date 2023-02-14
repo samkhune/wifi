@@ -1,0 +1,54 @@
+server {
+        listen 80;
+        listen 443 ssl http2;
+
+        server_name wiapp.wifi-soft.com;
+
+		ssl_certificate /etc/ssl/certs/wifisoft.crt;
+		ssl_certificate_key /etc/ssl/private/wifisoft.key;
+		ssl_trusted_certificate /etc/ssl/certs/wifisoft-wildcard-ca.crt;
+		ssl_stapling on;
+		ssl_stapling_verify on;
+
+        location ~ /\.(ht|git|svn){
+            deny all;
+            access_log /var/log/nginx/deny.log;
+        }
+
+        location ~ ^/device_management{
+            root /usr/local/wiapp;
+            try_files $uri $uri/ $uri.php$is_args$args;
+            include fastcgi-php.conf;
+            access_log /var/log/nginx/device_management_access.log;
+            error_log /var/log/nginx/device_management_error.log;
+        }
+
+        location ~ ^/(wifilan|portal|wifilanimages|smartap) {
+            root /usr/local;
+            try_files $uri $uri/ $uri.php$is_args$args;
+            include fastcgi-php.conf;
+            access_log /var/log/nginx/wifilan_access.log;
+            error_log /var/log/nginx/wifilan_error.log;
+        }
+    }
+
+	server {
+	    listen 443 ssl http2;
+	    server_name smartap-ssl.wifi-soft.com;
+
+	    ssl_certificate /etc/ssl/certs/smartap-ssl.crt;
+	    ssl_certificate_key /etc/ssl/private/smartap-ssl.key;
+	    ssl_client_certificate /etc/ssl/certs/wifisoft-device-ca.crt;
+	    ssl_verify_client on;
+	    ssl_protocols TLSv1.2;
+
+	    rewrite ^/(v[0-9]+)/([^ap].+) /$1/ap/$2 last;
+
+	    location ~ ^/(v[0-9]+)/ap {
+		root /usr/local/smartap;
+		include fastcgi-php.conf;
+	    }
+
+	    access_log /var/log/nginx/smartap_config_firmware_access.log;
+	    include fastcgi-php.conf;
+	}

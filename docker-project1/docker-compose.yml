@@ -1,0 +1,66 @@
+version: "3"
+services:
+  nginx:
+    container_name: 'wios-dock-nginx'
+    build: ./nginx
+    tty: true
+    depends_on:
+      - php-fpm
+    volumes:
+      - ./src/wifilan-2-5-ng/:/usr/local/wifilan-2-5-ng
+      - ./src/cron:/usr/local/cron
+      - ./src/wifilan:/usr/local/wifilan
+      - ./src/smartap:/usr/local/smartap
+      - ./src/portal:/usr/local/portal
+    ports:
+      - "80:80"
+      - "443:443"
+  php-fpm:
+    container_name: 'wios-dock-php'
+      #image: docker.io/bitnami/php-fpm:7.4
+    tty: true
+    #user: '1000:1000'
+    build: ./php/
+      #build:
+      # context: ./php
+      #args:
+      # - PHP_ENV=development
+    depends_on:
+      - mariadb
+    expose: 
+      - 9000
+    volumes:
+      - ./src/wifilan-2-5-ng/:/usr/local/wifilan-2-5-ng
+      - ./src/cron:/usr/local/cron
+      - ./src/wifilan:/usr/local/wifilan
+      - ./src/smartap:/usr/local/smartap
+      - ./src/portal:/usr/local/portal
+  python:
+    container_name: 'wios-dock-python'
+    image: python:3.7.15
+    tty: true
+    depends_on:
+      - mariadb
+    volumes:
+      - ./src/wifilan-py37:/usr/local/wifilan-py37
+  mariadb:
+    container_name: 'wios-dock-db'
+    image: mariadb:10.4.12
+    build:
+      context: ./mysql
+    #command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: wios
+    ports:
+      - "6033:3306"
+    volumes:
+      - ./database/schema:/docker-entrypoint-initdb.d
+  redis:
+    build: ./redis/
+    container_name: redis
+    ports:
+      - "6379:6379"
+    depends_on:
+      - mariadb
+    volumes:
+      - ./redis/conf/:/etc/redis/
